@@ -4,26 +4,35 @@ Caso de estudio: tienda online (e-commerce). Base relacional de 10 entidades con
 
 ## Estructura del repositorio
 
-| Archivo | Entregable que cubre |
-|---|---|
-| `01_schema.sql` | Script de creación de la BD en SQL Server |
-| `02_generate_data.py` | Carga de datos (más de 5.000 registros) |
-| `03_migrate.py` | Código de migración hacia MongoDB |
-| `04_verify.py` | Verificaciones posteriores a la migración |
-| `05_queries.py` | Aggregation Pipelines + justificación de negocio |
-| `README.md` | Modelos, decisiones de modelado, instrucciones |
-| `evidencias/` | Capturas (ver checklist abajo) |
-| `presentacion.pptx` | Presentación de la sustentación |
+```
+Bd taller 3/
+├── sql/
+│   └── 01_schema.sql              # Creación de la BD en SQL Server
+├── scripts/
+│   ├── 02_generate_data.py        # Carga de datos (+5.000 registros)
+│   ├── 03_migrate.py              # Migración SQL Server -> MongoDB
+│   ├── 04_verify.py               # Verificaciones post-migración
+│   └── 05_queries.py              # 7 Aggregation Pipelines + justificación
+├── mongo/
+│   └── consultas_mongo.txt        # Las mismas 7 consultas para Compass / mongosh
+├── docs/
+│   └── Documentacion_Simple_Taller_3_SQLServer_MongoDB.docx
+├── evidencias/                    # Capturas (ver checklist abajo)
+├── requirements.txt
+└── README.md
+```
 
 ## Cómo ejecutarlo
 
+Todos los comandos se corren desde la raíz del proyecto (`Bd taller 3/`).
+
 ```bash
 pip install -r requirements.txt
-# 1. En SSMS ejecutar 01_schema.sql
-python 02_generate_data.py   # llena SQL Server
-python 03_migrate.py         # migra a MongoDB
-python 04_verify.py          # comprueba la migración
-python 05_queries.py         # ejecuta las 7 consultas (o: python 05_queries.py 3)
+# 1. En SSMS: abrir sql/01_schema.sql y ejecutarlo (F5)
+python scripts/02_generate_data.py   # llena SQL Server
+python scripts/03_migrate.py         # migra a MongoDB
+python scripts/04_verify.py          # comprueba la migración
+python scripts/05_queries.py         # ejecuta las 7 consultas (o: python scripts/05_queries.py 3)
 ```
 
 Requisitos: SQL Server + ODBC Driver 17/18, MongoDB local en `localhost:27017`. Ajusta las cadenas de conexión al inicio de cada script.
@@ -88,7 +97,3 @@ Cada `_id` conserva el ID original de SQL Server, lo que facilita verificar y ra
 - [ ] Captura de las colecciones en MongoDB Compass (con un documento de `pedidos` expandido).
 - [ ] Captura de la salida de `04_verify.py` (todo en OK).
 - [ ] Captura de la salida de cada consulta de `05_queries.py`.
-
-## Preparación para la sustentación
-
-Cada integrante debe poder explicar: por qué cada relación quedó embebida o referenciada, qué hace cada etapa (`$match`, `$unwind`, `$group`, `$lookup`, `$project`, `$sort`, `$limit`) en cada consulta, y modificar una consulta en vivo (por ejemplo: cambiar el top 10 a top 5, filtrar por un rango de fechas o por una categoría, o sumar otro `$lookup`).
