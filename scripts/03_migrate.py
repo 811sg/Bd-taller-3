@@ -1,15 +1,4 @@
-"""
-Migración SQL Server -> MongoDB (modelo documental, NO una copia tabla a tabla).
 
-Colecciones resultantes (6):
-  clientes      <- Cliente + Direccion (EMBEBIDAS como array)
-  productos     <- Producto + Categoria (EMBEBIDA) ; referencia a proveedor
-  proveedores   <- Proveedor
-  metodos_pago  <- MetodoPago
-  pedidos       <- Pedido + DetallePedido (array items) + Pago (subdocumento)
-                   + dirección de envío (snapshot) ; referencia a cliente
-  resenas       <- Resena (referencias a cliente y producto)
-"""
 from collections import defaultdict
 from datetime import date, datetime
 from decimal import Decimal
@@ -29,7 +18,7 @@ MONGO_DB = "tienda_online"
 
 
 def limpiar(v):
-    """Decimal -> float, date -> datetime (pymongo no codifica Decimal ni date)."""
+
     if isinstance(v, Decimal):
         return float(v)
     if isinstance(v, date) and not isinstance(v, datetime):

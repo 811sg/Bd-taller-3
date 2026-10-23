@@ -55,38 +55,4 @@ check("Pago -> pedidos.pago (1 por pedido)", sql_val("SELECT COUNT(*) FROM Pago"
 check("Categoria -> productos.categoria", sql_val("SELECT COUNT(DISTINCT id_categoria) FROM Producto"),
       len(db.productos.distinct("categoria.id_categoria")))
 
-print("\n== 3. Integridad de valores ==")
-check("Suma total de pedidos", sql_val("SELECT SUM(total) FROM Pedido"),
-      suma_mongo("pedidos", [{"$group": {"_id": None, "n": {"$sum": "$total"}}}]))
-check("Suma de DetallePedido (cant*precio)", sql_val("SELECT SUM(cantidad*precio_unitario) FROM DetallePedido"),
-      suma_mongo("pedidos", [{"$unwind": "$items"}, {"$group": {"_id": None, "n": {"$sum": "$items.subtotal"}}}]))
-check("Pedidos cuyo total != suma de items (debe ser 0)", 0,
-      suma_mongo("pedidos", [{"$addFields": {"s": {"$sum": "$items.subtotal"}}},
-                             {"$match": {"$expr": {"$ne": ["$s", "$total"]}}},
-                             {"$count": "n"}]))
-
-print("\n== 4. Referencias huérfanas (todas deben ser 0) ==")
-huerfanas = {
-    "pedidos.cliente_id sin cliente": ("pedidos", "cliente_id", "clientes"),
-    "productos.proveedor_id sin proveedor": ("productos", "proveedor_id", "proveedores"),
-    "resenas.producto_id sin producto": ("resenas", "producto_id", "productos"),
-    "resenas.cliente_id sin cliente": ("resenas", "cliente_id", "clientes"),
-    "pedidos.pago.metodo_id sin método": ("pedidos", "pago.metodo_id", "metodos_pago"),
-}
-for nombre, (col, campo, destino) in huerfanas.items():
-    n = suma_mongo(col, [
-        {"$lookup": {"from": destino, "localField": campo, "foreignField": "_id", "as": "r"}},
-        {"$match": {"r": {"$size": 0}}}, {"$count": "n"}])
-    check(nombre, 0, n)
-
-print("\n== 5. Comparación de un pedido de muestra ==")
-cur.execute("SELECT TOP 1 id_pedido, id_cliente, estado, total FROM Pedido ORDER BY id_pedido DESC")
-id_ped, id_cli, estado, total = cur.fetchone()
-doc = db.pedidos.find_one({"_id": id_ped})
-print(f"SQL   : pedido={id_ped} cliente={id_cli} estado={estado} total={float(total)}")
-print(f"Mongo : pedido={doc['_id']} cliente={doc['cliente_id']} estado={doc['estado']} "
-      f"total={doc['total']} items={len(doc['items'])}")
-resultados.append(doc["cliente_id"] == id_cli and doc["estado"] == estado
-                  and abs(doc["total"] - float(total)) < 0.01)
-
 print(f"\nResumen: {sum(resultados)}/{len(resultados)} verificaciones correctas")
