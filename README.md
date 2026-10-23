@@ -12,12 +12,10 @@ Bd taller 3/
 │   ├── 02_generate_data.py        # Carga de datos (+5.000 registros)
 │   ├── 03_migrate.py              # Migración SQL Server -> MongoDB
 │   ├── 04_verify.py               # Verificaciones post-migración
-│   └── 05_queries.py              # 7 Aggregation Pipelines + justificación
 ├── mongo/
 │   └── consultas_mongo.txt        # Las mismas 7 consultas para Compass / mongosh
 ├── docs/
 │   └── Documentacion_Simple_Taller_3_SQLServer_MongoDB.docx
-├── evidencias/                    # Capturas (ver checklist abajo)
 ├── requirements.txt
 └── README.md
 ```
@@ -32,7 +30,6 @@ pip install -r requirements.txt
 python scripts/02_generate_data.py   # llena SQL Server
 python scripts/03_migrate.py         # migra a MongoDB
 python scripts/04_verify.py          # comprueba la migración
-python scripts/05_queries.py         # ejecuta las 7 consultas (o: python scripts/05_queries.py 3)
 ```
 
 Requisitos: SQL Server + ODBC Driver 17/18, MongoDB local en `localhost:27017`. Ajusta las cadenas de conexión al inicio de cada script.
@@ -89,11 +86,3 @@ Cada `_id` conserva el ID original de SQL Server, lo que facilita verificar y ra
 ## Verificación de la migración
 
 `04_verify.py` comprueba: conteos por entidad, que las filas de Direccion/DetallePedido/Pago coincidan con los elementos de los arrays/subdocumentos, que las sumas de dinero sean idénticas en ambos motores, que ningún pedido tenga total distinto a la suma de sus ítems, que no existan referencias huérfanas y la comparación de un pedido concreto.
-
-## Checklist de evidencias (carpeta `evidencias/`)
-
-- [ ] Captura del diagrama relacional (SSMS → Database Diagrams) y del modelo documental.
-- [ ] Captura de `SELECT COUNT(*)` por tabla en SQL Server.
-- [ ] Captura de las colecciones en MongoDB Compass (con un documento de `pedidos` expandido).
-- [ ] Captura de la salida de `04_verify.py` (todo en OK).
-- [ ] Captura de la salida de cada consulta de `05_queries.py`.
