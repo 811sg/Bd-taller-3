@@ -128,50 +128,8 @@ db.pedidos.aggregate([
   }
 ])
 
-// 5. Productos mejor calificados con su proveedor (múltiples $lookup)
-db.resenas.aggregate([
-  {
-    $group: {
-      _id: "$producto_id",
-      promedio: { $avg: "$calificacion" },
-      num_resenas: { $sum: 1 }
-    }
-  },
-  { $match: { num_resenas: { $gte: 3 } } },
-  { $sort: { promedio: -1, num_resenas: -1 } },
-  { $limit: 10 },
-  {
-    $lookup: {
-      from: "productos",
-      localField: "_id",
-      foreignField: "_id",
-      as: "producto"
-    }
-  },
-  { $unwind: "$producto" },
-  {
-    $lookup: {
-      from: "proveedores",
-      localField: "producto.proveedor_id",
-      foreignField: "_id",
-      as: "proveedor"
-    }
-  },
-  { $unwind: "$proveedor" },
-  {
-    $project: {
-      _id: 0,
-      producto: "$producto.nombre",
-      categoria: "$producto.categoria.nombre",
-      proveedor: "$proveedor.nombre",
-      ciudad_proveedor: "$proveedor.ciudad",
-      promedio: { $round: ["$promedio", 2] },
-      num_resenas: 1
-    }
-  }
-])
 
-// 6. Pagos rechazados con cliente y método de pago (múltiples $lookup)
+// 5. Pagos rechazados con cliente y método de pago (múltiples $lookup)
 db.pedidos.aggregate([
   { $match: { "pago.estado": "Rechazado" } },
   { $sort: { total: -1 } },
@@ -207,7 +165,7 @@ db.pedidos.aggregate([
   }
 ])
 
-// 7. Ventas por ciudad de envío
+// 6. Ventas por ciudad de envío
 db.pedidos.aggregate([
   { $match: { estado: { $ne: "Cancelado" } } },
   {
